@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -25,11 +26,14 @@ public class MainActivity extends AppCompatActivity {
 
     private WebServer server;
 
+    TextView txtApState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        txtApState = (TextView) findViewById(R.id.txtAPState);
         setSupportActionBar(toolbar);
 
 
@@ -40,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Snackbar.make(view, InetUtils.getLocalHostLANAddress().toString(), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-
-                    new WifiTetheringAsyncTask(true, getApplicationContext()).execute();
 
                 } catch (UnknownHostException e) {
                     Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG)
@@ -60,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d("IP_ADDRESS", formatedIpAddress);
 
         Toast.makeText(this, "http://" + formatedIpAddress + ":8080", Toast.LENGTH_LONG).show();
+
+        txtApState.setText(formatedIpAddress);
+        new WifiTetheringAsyncTask(true, getApplicationContext()).execute();
 
         server = new WebServer();
 
