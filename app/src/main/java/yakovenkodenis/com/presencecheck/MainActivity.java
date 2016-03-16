@@ -1,6 +1,8 @@
 package yakovenkodenis.com.presencecheck;
 
+import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,6 +15,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
+
+import yakovenkodenis.com.presencecheck.utils.network.InetUtils;
+import yakovenkodenis.com.presencecheck.utils.network.WifiTetheringUtils;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -31,8 +37,17 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                try {
+                    Snackbar.make(view, InetUtils.getLocalHostLANAddress().toString(), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                    new WifiTetheringAsyncTask(true, getApplicationContext()).execute();
+
+                } catch (UnknownHostException e) {
+                    Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -93,6 +108,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class WifiTetheringAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private boolean enabled;
+
+        private Context context;
+
+        public WifiTetheringAsyncTask(boolean enabled, Context context) {
+            this.enabled = enabled;
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... booleans) {
+            WifiTetheringUtils.setWifiTetheringEnabled(enabled, context);
+
+            return null;
+        }
     }
 
 }
